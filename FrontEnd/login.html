@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in page</title>
+    <link rel="stylesheet" href="./login.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+
+    <div class="wrapper">
+        <div class="login">
+            <form>
+                <h1>Log in</h1>
+                <div class="input-box">
+                    <input type="text" placeholder="Email" required id="login-email">
+                    <i class='bx bx-user'></i>
+                </div>
+                <div class="input-box">
+                    <input type="password" placeholder="Password" required id="login-password">
+                    <i class='bx bx-lock-alt'></i>
+                </div>
+                <div class="remember-forget">
+                    <label><input type="checkbox"> Remember me</label>
+                    <a href="#">Forgot Password?</a>
+                </div>
+                <button type="submit" class="btn" id="login-btn" onclick="redirectToPage()">Log in</button>
+                <p id="login-error" style="color: red; display: none;">Invalid email or password.</p>
+                <div class="register-link">
+                    <p>Don't have an account?</p>
+                    <div class="signup-switch">
+                        <a>Sign up</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="signup">
+            <form>
+                <h1>SignUp</h1>
+                <div class="input-box">
+                    <input type="text" placeholder="Email" required id="signup-email">
+                    <i class='bx bx-user'></i>
+                </div>
+                <div class="input-box">
+                    <input type="password" placeholder="Password" required id="signup-password">
+                    <i class='bx bx-lock-alt'></i>
+                </div>
+                <div class="remember-forget">
+                    <label><input type="checkbox"> Remember me</label>
+                    <a href="#">Forgot Password?</a>
+                </div>
+                <button type="submit" class="btn" id="signup-btn">Sign up</button>
+                <p id="signup-error" style="color: red; display: none;">Please fill in all fields.</p>
+                <div class="register-link">
+                    <p>Already have an account?</p>
+                    <div class="login-switch">
+                        <a>Log in</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const signupSwitch = document.querySelector(".signup-switch");
+        const loginSwitch = document.querySelector(".login-switch");
+
+        signupSwitch.addEventListener("click", () => {
+            document.querySelector(".signup").style.display = "block";
+            document.querySelector(".login").style.display = "none";
+        });
+
+        loginSwitch.addEventListener("click", () => {
+            document.querySelector(".signup").style.display = "none";
+            document.querySelector(".login").style.display = "block";
+        });
+    </script>
+
+    <script>
+        function redirectToPage() {
+            window.location.href = 'index.html';
+}
+
+        document.getElementById('signup-btn').addEventListener('click', async () => {
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value.trim();
+            const error = document.getElementById('signup-error');
+
+            if ( email && password) {
+                try {
+                    const response = await fetch('http://localhost:4000/api/user', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email, password }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        alert('Sign Up Successful! Redirecting to Login page...');
+                        error.style.display = 'none';
+                        document.querySelector(".signup").style.display = "none";
+                        document.querySelector(".login").style.display = "block";
+                    } else {
+                        error.textContent = data.message || 'Sign Up Failed!';
+                        error.style.display = 'block';
+                    }
+                } catch (err) {
+                    error.textContent = 'An error occurred. Please try again later.';
+                    error.style.display = 'block';
+                }
+            } else {
+                error.textContent = 'All fields are required!';
+                error.style.display = 'block';
+            }
+        });
+
+        document.getElementById('login-btn').addEventListener('click', async () => {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            const error = document.getElementById('login-error');
+
+            if (email && password) {
+                try {
+                    const response = await fetch('http://localhost:8080/api/user/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email, password }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        alert(`Welcome back!`);
+                        error.style.display = 'none';
+                        localStorage.setItem('User', JSON.stringify(data));
+                    } else {
+                        error.textContent = data.message || 'Invalid email or password.';
+                        error.style.display = 'block';
+                    }
+                } catch (err) {
+                    error.textContent = 'An error occurred. Please try again later.';
+                    error.style.display = 'block';
+                }
+            } else {
+                error.textContent = 'All fields are required!';
+                error.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
